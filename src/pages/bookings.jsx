@@ -8,7 +8,6 @@ import './bookings.css';
 export default function Bookings() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [branchFilter, setBranchFilter] = useState('All');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -85,11 +84,6 @@ export default function Bookings() {
     }
   };
 
-  const filteredBookings = bookings.filter(booking => {
-    if (branchFilter === 'All') return true;
-    return booking.branch === branchFilter;
-  });
-
   if (loading) return <div className="spinner">Loading...</div>;
 
   return (
@@ -102,27 +96,12 @@ export default function Bookings() {
           </button>
         </header>
 
-        <div style={{ marginBottom: '20px', display: 'flex', gap: '15px', alignItems: 'center', backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-          <label htmlFor="branchFilter" style={{ fontWeight: '600', color: 'var(--text-dark)' }}>Filter by Branch:</label>
-          <select 
-             id="branchFilter" 
-             value={branchFilter} 
-             onChange={(e) => setBranchFilter(e.target.value)}
-            style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '1rem', minWidth: '200px' }}
-          >
-            <option value="All">All Branches</option>
-            <option value="Iju">Iju</option>
-            <option value="Iyana Ipaja">Iyana Ipaja</option>
-          </select>
-        </div>
-
         <div className="bookings-table-responsive">
           <table className="bookings-table">
             <thead>
               <tr>
                 <th>Received</th>
                 <th>Patient Details</th>
-                <th>Branch</th>
                 <th>Requested Date</th>
                 <th>Reason / Complaint</th>
                 <th>Status</th>
@@ -130,14 +109,14 @@ export default function Bookings() {
               </tr>
             </thead>
             <tbody>
-              {filteredBookings.length === 0 ? (
+              {bookings.length === 0 ? (
                 <tr>
-                  <td colSpan="7" style={{ textAlign: 'center', padding: '30px' }}>
-                    {bookings.length === 0 ? 'No booking requests found.' : 'No booking requests found for the selected branch.'}
+                  <td colSpan="6" style={{ textAlign: 'center', padding: '30px' }}>
+                    No booking requests found.
                   </td>
                 </tr>
               ) : (
-                filteredBookings.map((booking) => (
+                bookings.map((booking) => (
                   <tr key={booking.id}>
                     <td>
                       {new Date(booking.createdAt).toLocaleDateString()}
@@ -151,11 +130,6 @@ export default function Bookings() {
                       <strong>{booking.name}</strong>
                       <small>{booking.sex} | {booking.phoneNumber}</small>
                       {booking.email && <small>{booking.email}</small>}
-                    </td>
-                    <td>
-                      <span style={{ fontWeight: '600', color: 'var(--primary-color)' }}>
-                        {booking.branch || <span style={{color: '#999', fontStyle: 'italic', fontWeight: 'normal'}}>Not specified</span>}
-                      </span>
                     </td>
                     <td>
                       {booking.requestedAppointmentDate 
