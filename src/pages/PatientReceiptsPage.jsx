@@ -28,7 +28,7 @@ export default function PatientReceiptsPage() {
 
   // --- State to manage debt vs. new service billing ---
   const [isDebtPaymentMode, setIsDebtPaymentMode] = useState(false);
-  const [forceServiceMode, setForceServiceMode] = useState(false); // NEW: To override debt mode
+  const [forceServiceMode, setForceServiceMode] = useState(false); 
   const [debtContextDescription, setDebtContextDescription] = useState("");
 
   const [receiptItems, setReceiptItems] = useState([]);
@@ -43,12 +43,14 @@ export default function PatientReceiptsPage() {
   const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   const [receiptNumber] = useState(`RCPT-${Date.now().toString().slice(-6)}`);
+  
+  // Track if we have already pre-populated the items
+  const [hasPreAdded, setHasPreAdded] = useState(false);
 
-  // Determines if the UI should be locked to only paying off debt.
   const isPureDebtPaymentMode = isDebtPaymentMode && !forceServiceMode;
 
+  // 1. Fetch Data Effect
   useEffect(() => {
-    // Fetches dynamic lists for services and HMOs
     const fetchBillingOptions = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/billing/options`);
@@ -124,17 +126,6 @@ export default function PatientReceiptsPage() {
           if (latestRecord && Array.isArray(latestRecord.treatmentPlan) && latestRecord.treatmentPlan.length > 0) {
             setDebtContextDescription(latestRecord.treatmentPlan.join(", "));
           }
-        } else {
-          if (latestRecord && Array.isArray(latestRecord.treatmentPlan) && serviceOptions.length > 0) {
-            const preAddedItems = latestRecord.treatmentPlan.map((plan, index) => {
-                const serviceInfo = serviceOptions.find((s) => s.name.toLowerCase() === plan.toLowerCase().trim());
-                return { id: `plan-${index}-${Date.now()}`, name: plan.trim(), price: serviceInfo ? serviceInfo.price : 0, quantity: 1 };
-            });
-            if (preAddedItems.length > 0) {
-              setReceiptItems(preAddedItems);
-              toast.info("Treatment plan items pre-added to receipt. Please review.");
-            }
-          }
         }
       } catch (err) {
         setError(err.message || "Network error. Could not connect to the server.");
@@ -146,7 +137,22 @@ export default function PatientReceiptsPage() {
 
     fetchBillingOptions();
     fetchReceiptDetails();
-  }, [patientId, navigate, serviceOptions.length]);
+  }, [patientId, navigate]);
+
+  // 2. Pre-populate Receipt Items Effect (Safely depends on serviceOptions)
+  useEffect(() => {
+    if (!hasPreAdded && !isPureDebtPaymentMode && latestDentalRecord?.treatmentPlan && Array.isArray(latestDentalRecord.treatmentPlan) && serviceOptions.length > 0) {
+      const preAddedItems = latestDentalRecord.treatmentPlan.map((plan, index) => {
+          const serviceInfo = serviceOptions.find((s) => s.name.toLowerCase() === plan.toLowerCase().trim());
+          return { id: `plan-${index}-${Date.now()}`, name: plan.trim(), price: serviceInfo ? serviceInfo.price : 0, quantity: 1 };
+      });
+      if (preAddedItems.length > 0) {
+        setReceiptItems(preAddedItems);
+        toast.info("Treatment plan items pre-added to receipt. Please review.");
+      }
+      setHasPreAdded(true);
+    }
+  }, [latestDentalRecord, serviceOptions, hasPreAdded, isPureDebtPaymentMode]);
 
   const hasPermission = (permissionKey) => {
     if (!userRole || !settings || !settings.patientManagement) return false;
@@ -240,17 +246,15 @@ export default function PatientReceiptsPage() {
         headers: { 
           "Content-Type": "application/json", 
           Authorization: `Bearer ${token}`,
-          // No longer sending a client-generated Idempotency-Key
         },
         body: JSON.stringify({ receiptData: payload, senderUserId: parseInt(senderUserId) }),
       });
 
       if (response.ok) {
         toast.success("Receipt email sent successfully!");
-        navigate(0); // Reload to prevent resubmission
+        navigate(0); 
       } else { 
         const errorData = await response.json();
-        // Handle the specific duplicate error
         if (response.status === 409) {
           toast.error(`Duplicate Receipt: ${errorData.error}`);
         } else {
@@ -261,7 +265,6 @@ export default function PatientReceiptsPage() {
       toast.error("Network error. Could not send receipt email."); 
     } 
     finally { 
-      // This block ensures the button is re-enabled even if the API call fails
       setIsSendingEmail(false); 
     }
   };

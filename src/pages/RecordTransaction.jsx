@@ -16,13 +16,11 @@ export default function RecordTransaction() {
   });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(null); // Used for both fetch errors and form submission errors
-  const [userRole, setUserRole] = useState(null); // Added to store user role
+  const [error, setError] = useState(null); 
 
   useEffect(() => {
     const token = localStorage.getItem('jwtToken');
-    const role = localStorage.getItem('role'); // Get the user's role from local storage
-    setUserRole(role); // Store the role in state
+    const role = localStorage.getItem('role'); 
 
     if (!token) {
       toast.error('Authentication required. Please log in.');
@@ -34,7 +32,7 @@ export default function RecordTransaction() {
     // Only 'owner' and 'staff' roles are allowed to access this page.
     if (role !== 'owner' && role !== 'staff') {
       toast.error('Access denied. Only Staff and Owners can record inventory transactions.');
-      navigate('/dashboard'); // Redirect to dashboard or another appropriate page
+      navigate('/dashboard'); 
       return;
     }
     // --- End Role-based Access Control ---
@@ -64,7 +62,7 @@ export default function RecordTransaction() {
     };
 
     fetchItems();
-  }, [navigate]); // navigate is a dependency
+  }, [navigate]); 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -72,8 +70,7 @@ export default function RecordTransaction() {
       ...prevData,
       [name]: value,
     }));
-    // Clear item ID if transaction type changes and it's not applicable (though here it always is)
-    // No change needed here, as the logic is already sound for clearing itemId if type changes.
+
     if (name === 'transactionType' && value === '') {
         setFormData(prevData => ({ ...prevData, itemId: '' }));
     }
@@ -82,8 +79,8 @@ export default function RecordTransaction() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    setError(null); // Clear previous errors on new submission attempt
-    toast.dismiss(); // Dismiss any lingering toasts
+    setError(null); 
+    toast.dismiss(); 
 
     const token = localStorage.getItem('jwtToken');
     if (!token) {
@@ -149,7 +146,6 @@ export default function RecordTransaction() {
         localStorage.clear();
         navigate('/login');
       } else {
-        // Display specific backend error message
         setError(data.error || 'Failed to record transaction.');
         toast.error(data.error || 'Failed to record transaction.');
       }
@@ -162,7 +158,6 @@ export default function RecordTransaction() {
     }
   };
 
-  // Render logic for loading and initial errors (before form interaction)
   if (loading) {
     return (
       <div className="container mt-4">
@@ -175,8 +170,7 @@ export default function RecordTransaction() {
     );
   }
 
-  // If there's an error during the initial fetch and we're not submitting
-  if (error && !submitting && !formData.itemId) { // Check !formData.itemId to distinguish initial load error from submission error
+  if (error && !submitting && !formData.itemId) { 
     return (
       <div className="container mt-4">
         <div className="alert alert-danger" role="alert">
@@ -197,8 +191,7 @@ export default function RecordTransaction() {
       </header>
 
       <form onSubmit={handleSubmit} className="record-transaction-form">
-        {/* Display form-specific errors here */}
-        {error && submitting && ( // Only show error here if it's a submission error
+        {error && submitting && (
           <div className="alert alert-danger mb-3" role="alert">
             {error}
           </div>

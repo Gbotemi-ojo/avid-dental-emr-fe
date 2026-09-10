@@ -33,9 +33,12 @@ export default function InvoicePage() {
   const [showInvoice, setShowInvoice] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [invoiceNumber] = useState(`INV-${Date.now().toString().slice(-6)}`);
+  
+  // Track if we have already pre-populated the items
+  const [hasPreAdded, setHasPreAdded] = useState(false);
 
+  // 1. Fetch Data Effect
   useEffect(() => {
-    // Fetches dynamic lists for services and HMOs
     const fetchBillingOptions = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/billing/options`);
@@ -109,20 +112,6 @@ export default function InvoicePage() {
           if (recordsData && recordsData.length > 0) {
             const latestRecord = recordsData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
             setLatestDentalRecord(latestRecord);
-            // Pre-populate invoice with treatment plan items
-            if (latestRecord.treatmentPlan && Array.isArray(latestRecord.treatmentPlan)) {
-              // Wait for serviceOptions to be loaded before matching
-              if (serviceOptions.length > 0) {
-                const preAddedItems = latestRecord.treatmentPlan.map((planItem, index) => {
-                    const serviceMatch = serviceOptions.find((s) => s.name.toLowerCase() === planItem.toLowerCase().trim());
-                    return { id: `tp-${Date.now()}-${index}`, name: planItem.trim(), price: serviceMatch ? serviceMatch.price : 0, quantity: 1 };
-                });
-                if (preAddedItems.length > 0) {
-                  setInvoiceItems(preAddedItems);
-                  toast.info("Treatment plan items pre-added to invoice. Please review prices.");
-                }
-              }
-            }
           }
         }
 
@@ -136,7 +125,22 @@ export default function InvoicePage() {
 
     fetchBillingOptions();
     fetchInvoiceDetails();
-  }, [patientId, navigate, serviceOptions.length]); // Re-run if serviceOptions loads after initial render
+  }, [patientId, navigate]); 
+
+  // 2. Pre-populate Invoice Items Effect (Safely depends on serviceOptions)
+  useEffect(() => {
+    if (!hasPreAdded && latestDentalRecord?.treatmentPlan && Array.isArray(latestDentalRecord.treatmentPlan) && serviceOptions.length > 0) {
+      const preAddedItems = latestDentalRecord.treatmentPlan.map((planItem, index) => {
+          const serviceMatch = serviceOptions.find((s) => s.name.toLowerCase() === planItem.toLowerCase().trim());
+          return { id: `tp-${Date.now()}-${index}`, name: planItem.trim(), price: serviceMatch ? serviceMatch.price : 0, quantity: 1 };
+      });
+      if (preAddedItems.length > 0) {
+        setInvoiceItems(preAddedItems);
+        toast.info("Treatment plan items pre-added to invoice. Please review prices.");
+      }
+      setHasPreAdded(true);
+    }
+  }, [latestDentalRecord, serviceOptions, hasPreAdded]);
   
   const hasPermission = (permissionKey) => {
     if (!userRole || !settings || !settings.patientManagement) return false;
@@ -177,7 +181,7 @@ export default function InvoicePage() {
 
   const subtotal = invoiceItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const isInvoiceForHmoPatient = patientHasHMO && selectedHMO === patientHMOName;
-  const totalDue = subtotal; // Total due is always the subtotal now. Price visibility is handled in the UI.
+  const totalDue = subtotal; 
 
   const handleGenerateInvoice = () => {
     if (invoiceItems.length === 0) { toast.error("Please add at least one service to generate an invoice."); return; }
@@ -187,7 +191,6 @@ export default function InvoicePage() {
   const handlePrint = () => window.print();
 
   const handleSendEmail = async () => {
-    // if (!patient || !patient.email) { toast.error("Patient email is missing. Cannot send invoice."); return; }
     if (invoiceItems.length === 0) { toast.error("No services added to the invoice to send."); return; }
     const token = localStorage.getItem("jwtToken");
     if (!token) { toast.error("Authentication token missing. Please log in."); return; }
@@ -200,13 +203,12 @@ export default function InvoicePage() {
       items: invoiceItems.map((item) => ({
         description: item.name,
         quantity: item.quantity,
-        // If it's an HMO invoice, prices are zeroed out as it's a statement of service.
         unitPrice: isInvoiceForHmoPatient ? 0 : item.price,
         totalPrice: isInvoiceForHmoPatient ? 0 : item.price * item.quantity,
       })),
       isHmoCovered: isInvoiceForHmoPatient,
       hmoName: isInvoiceForHmoPatient ? selectedHMO : null,
-      coveredAmount: 0, // No automatic coverage calculation
+      coveredAmount: 0, 
       totalAmount: totalDue,
       notes: "Thank you for your patronage",
       clinicName: clinicName,
@@ -231,7 +233,6 @@ export default function InvoicePage() {
     finally { setIsSendingEmail(false); }
   };
 
-  // Combined loading state check
   if (loading || dataLoading || !settings) return (
       <div className="app-container">
         <div className="invoice-container" style={{ textAlign: "center", padding: "50px" }}>
