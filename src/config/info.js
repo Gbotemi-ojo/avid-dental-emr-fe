@@ -1,5 +1,5 @@
-export const clinicName = "Prime Dental Clinic";
-export const ClinicDescription = "Your smile, our priority";
-export const addressLine1 = "Local government, 104, New Ipaja/Egbeda Road,";
-export const addressLine2 = "opposite prestige super-market, Alimosho, Ipaja Rd, Ipaja, Lagos 100006, Lagos";
-export const phoneNumber = "0703 070 8877";
+export const clinicName = "Avid Dental Clinic";
+export const ClinicDescription = "Elevate your oral health with expert care and personalized service";
+export const addressLine1 = "Ile Zik Bus Stop, 601 Agege Motor Rd,";
+export const addressLine2 = "Ile Zik, Ikeja 101233, Lagos";
+export const phoneNumber = " 090 1645 9100";
