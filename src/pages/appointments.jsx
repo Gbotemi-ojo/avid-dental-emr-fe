@@ -1,12 +1,11 @@
 // src/pages/appointments.jsx
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import API_BASE_URL from '../config/api';
 import './appointments.css';
 
-// NEW: Modal component for sending custom emails
 const CustomEmailModal = ({ patient, isOpen, onClose, onSend }) => {
     const [subject, setSubject] = useState('');
     const [message, setMessage] = useState('');
@@ -81,25 +80,21 @@ const CustomEmailModal = ({ patient, isOpen, onClose, onSend }) => {
             </div>
         </div>
     );
-};
-
+}
 
 const AppointmentCard = ({ patient, onSendReminder, onComposeEmail, onNavigate, sendingState, viewMode }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
-
     const hasOutstanding = parseFloat(patient.outstanding) > 0;
-
     const isSending = (type) => sendingState?.patientId === patient.id && sendingState?.type === type;
-
     const formattedOutstanding = hasOutstanding
         ? parseFloat(patient.outstanding).toLocaleString('en-US', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
           })
         : '0.00';
-    
+         
     const parseJsonField = (jsonString) => {
         if (!jsonString) return 'N/A';
         try {
@@ -128,7 +123,6 @@ const AppointmentCard = ({ patient, onSendReminder, onComposeEmail, onNavigate, 
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
-
 
     return (
         <li className={`appointment-card ${isDropdownOpen ? 'dropdown-active' : ''}`}>
@@ -204,7 +198,7 @@ const AppointmentCard = ({ patient, onSendReminder, onComposeEmail, onNavigate, 
             )}
         </li>
     );
-};
+}
 
 const AppointmentsPage = () => {
     const [allPatients, setAllPatients] = useState([]);
@@ -214,7 +208,6 @@ const AppointmentsPage = () => {
     const [error, setError] = useState(null);
     const [sendingState, setSendingState] = useState({ patientId: null, type: null });
     const navigate = useNavigate();
-
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPatientForEmail, setSelectedPatientForEmail] = useState(null);
 
@@ -227,7 +220,6 @@ const AppointmentsPage = () => {
         return `${year}-${month}-${day}`;
     };
 
-    // Initialize date based on view mode (Today/Tomorrow)
     useEffect(() => {
         if (viewMode === 'today') {
             setSelectedDate(new Date());
@@ -245,27 +237,23 @@ const AppointmentsPage = () => {
                 navigate('/login');
                 return;
             }
-
             try {
                 setLoading(true);
                 setError(null);
-                
-                // Construct query based on view mode
+                                 
                 let query = '';
                 if (viewMode !== 'all') {
-                    // Use the date we set in the other effect
                     const dateStr = toLocalISOString(selectedDate);
                     query = `?date=${dateStr}`;
                 }
 
-                // Call the NEW specialized endpoint
                 const response = await fetch(`${API_BASE_URL}/api/patients/scheduled${query}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
                 if (response.ok) {
                     const data = await response.json();
-                    setAllPatients(data); // This endpoint returns array directly
+                    setAllPatients(data); 
                 } else {
                     setError(`Failed to fetch appointments. Status: ${response.status}`);
                     if (response.status === 401 || response.status === 403) {
@@ -281,12 +269,11 @@ const AppointmentsPage = () => {
         };
 
         fetchScheduledPatients();
-    }, [navigate, viewMode, selectedDate]); // Refetch when mode or date changes
+    }, [navigate, viewMode, selectedDate]); 
 
     const handleDateChange = (e) => {
         const date = new Date(e.target.value + 'T00:00:00');
         setSelectedDate(date);
-        // viewMode stays 'byDate'
     };
 
     const handleOpenModal = (patient) => {
@@ -298,11 +285,11 @@ const AppointmentsPage = () => {
         setIsModalOpen(false);
         setSelectedPatientForEmail(null);
     };
-    
+         
     const handleSendCustomEmail = async (patientId, subject, message) => {
         const token = localStorage.getItem('jwtToken');
         const url = `${API_BASE_URL}/api/patients/${patientId}/send-custom-email`;
-        
+                 
         try {
             const response = await fetch(url, {
                 method: 'POST',
@@ -323,18 +310,17 @@ const AppointmentsPage = () => {
             toast.error(`Network error. Could not send email.`, { theme: "colored" });
         }
     };
-    
+         
     const handleSendReminder = async (patientId, type = 'general') => {
         const token = localStorage.getItem('jwtToken');
         setSendingState({ patientId, type });
-
         let url;
         if (type === 'general') {
             url = `${API_BASE_URL}/api/patients/${patientId}/send-reminder`;
         } else {
             url = `${API_BASE_URL}/api/patients/${patientId}/reminders/${type}`;
         }
-        
+                 
         try {
             const response = await fetch(url, {
                 method: 'POST',
@@ -353,7 +339,7 @@ const AppointmentsPage = () => {
             setSendingState({ patientId: null, type: null });
         }
     };
-    
+         
     const getHeaderText = () => {
         if (viewMode === 'today') return "Today's";
         if (viewMode === 'tomorrow') return "Tomorrow's";
@@ -374,7 +360,7 @@ const AppointmentsPage = () => {
                 draggable
                 pauseOnHover
              />
-             
+                           
              <CustomEmailModal 
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
@@ -413,6 +399,7 @@ const AppointmentsPage = () => {
                             <i className="fas fa-list"></i> All Appointments
                         </button>
                     </div>
+
                     {viewMode === 'byDate' && (
                         <div className="date-picker-wrapper">
                              <input
@@ -429,6 +416,7 @@ const AppointmentsPage = () => {
                     <h2 style={{ marginBottom: '20px', color: 'var(--text-dark)' }}>
                         {getHeaderText()} Appointments ({allPatients.length})
                     </h2>
+
                     {loading ? (
                         <div className="loading-indicator">
                             <div className="spinner"></div>
@@ -460,6 +448,6 @@ const AppointmentsPage = () => {
             </div>
         </>
     );
-};
+}
 
 export default AppointmentsPage;

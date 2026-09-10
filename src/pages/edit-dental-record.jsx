@@ -5,6 +5,11 @@ import { toast } from 'react-toastify';
 import './edit-dental-record.css';
 import API_BASE_URL from '../config/api';
 
+const appointmentIntervals = [
+  '1 day', '2 days', '3 days', '1 week', '2 weeks', '1 month', '6 weeks', '3 months', '6 months'
+];
+const initialQuadrantState = { q1: '', q2: '', q3: '', q4: '' };
+
 export default function EditDentalRecord() {
   const { patientId, recordId } = useParams();
   const navigate = useNavigate();
@@ -18,14 +23,8 @@ export default function EditDentalRecord() {
   const [appointmentInterval, setAppointmentInterval] = useState('');
   const [manualProvisionalDiagnosis, setManualProvisionalDiagnosis] = useState('');
   const [manualTreatmentPlan, setManualTreatmentPlan] = useState('');
-
   const [newXrayImageFile, setNewXrayImageFile] = useState(null);
   const [xrayImagePreview, setXrayImagePreview] = useState('');
-
-  const appointmentIntervals = [
-      '1 day', '2 days', '3 days', '1 week', '2 weeks', '1 month', '6 weeks', '3 months', '6 months'
-  ];
-  const initialQuadrantState = { q1: '', q2: '', q3: '', q4: '' };
 
   const [formData, setFormData] = useState({
     complaint: '',
@@ -66,32 +65,32 @@ export default function EditDentalRecord() {
 
   const provisionalDiagnosisOptions = [
     "Dental Caries (Tooth Decay)", "Reversible pulpitis", "Irreversible pulpitis (symptomatic/asymptomatic)", "Pulp necrosis", "Pulp calcification (pulp stones)", 
-    "Internal resorption", "Acute apical periodontitis", "Chronic apical periodontitis", "Periapical abscess (acute/chronic)", "Periapical cyst (radicular cyst)",
+     "Internal resorption", "Acute apical periodontitis", "Chronic apical periodontitis", "Periapical abscess (acute/chronic)", "Periapical cyst (radicular cyst)",
     "Condensing osteitis (focal sclerosing osteomyelitis)", "Gingivitis (plaque-induced or non-plaque-induced)", "Necrotizing ulcerative gingivitis (NUG)", 
-    "Gingival hyperplasia/hypertrophy (drug-induced, hormonal, or hereditary)", "Chronic periodontitis (localized/generalized)", "Aggressive periodontitis", 
-    "Necrotizing periodontitis", "Periodontal abscess", "Gingival recession (Miller Class I-IV)", "Furcation involvement (Grade I-III)", "Peri-implant mucositis/peri-implantitis", 
-    "Aphthous ulcers (minor/major/herpetiform)", "Oral lichen planus", "Leukoplakia/erythroplakia (potentially malignant)", "Oral candidiasis (pseudomembranous, erythematous, angular cheilitis)",
+     "Gingival hyperplasia/hypertrophy (drug-induced, hormonal, or hereditary)", "Chronic periodontitis (localized/generalized)", "Aggressive periodontitis", 
+     "Necrotizing periodontitis", "Periodontal abscess", "Gingival recession (Miller Class I-IV)", "Furcation involvement (Grade I-III)", "Peri-implant mucositis/peri-implantitis", 
+     "Aphthous ulcers (minor/major/herpetiform)", "Oral lichen planus", "Leukoplakia/erythroplakia (potentially malignant)", "Oral candidiasis (pseudomembranous, erythematous, angular cheilitis)",
     "Herpetic stomatitis (HSV-1)", "Oral squamous cell carcinoma", "Fordyce granules", "Geographic tongue (benign migratory glossitis)", "Enamel hypoplasia/hypomineralization", 
-    "Amelogenesis imperfecta", "Dentinogenesis imperfecta", "Dental fluorosis", "Tooth discoloration (intrinsic/extrinsic)", "Supernumerary teeth (hyperdontia)",
+     "Amelogenesis imperfecta", "Dentinogenesis imperfecta", "Dental fluorosis", "Tooth discoloration (intrinsic/extrinsic)", "Supernumerary teeth (hyperdontia)",
     "Hypodontia/oligodontia/anodontia", "Fusion/gemination", "Taurodontism", "Dens invaginatus/dens evaginatus", "Temporomandibular joint disorder (TMD)", 
-    "Myofascial pain dysfunction (MPD)", "Bruxism (awake/sleep-related)", "Occlusal trauma (primary/secondary)", "Malocclusion (Class I, II, III, open bite, deep bite, crossbite)",
+     "Myofascial pain dysfunction (MPD)", "Bruxism (awake/sleep-related)", "Occlusal trauma (primary/secondary)", "Malocclusion (Class I, II, III, open bite, deep bite, crossbite)",
     "Enamel fracture", "Crown fracture (uncomplicated/complicated)", "Root fracture", "Luxation (subluxation, extrusion, lateral, intrusion)", "Avulsion (tooth knocked out)", 
-    "Alveolar bone fracture", "Xerostomia (dry mouth)", "Sialadenitis (salivary gland infection)", "Sialolithiasis (salivary stones)", "Mucocele/ranula", 
-    "Osteomyelitis", "Osteonecrosis (bisphosphonate-related, radiation-induced)", "Odontogenic cysts (dentigerous cyst, odontogenic keratocyst)", 
-    "Odontogenic tumors (ameloblastoma, odontoma)", "Fibro-osseous lesions (fibrous dysplasia, cemento-osseous dysplasia)", "Fractured prosthesis (crown, bridge, denture)",
+     "Alveolar bone fracture", "Xerostomia (dry mouth)", "Sialadenitis (salivary gland infection)", "Sialolithiasis (salivary stones)", "Mucocele/ranula", 
+     "Osteomyelitis", "Osteonecrosis (bisphosphonate-related, radiation-induced)", "Odontogenic cysts (dentigerous cyst, odontogenic keratocyst)", 
+     "Odontogenic tumors (ameloblastoma, odontoma)", "Fibro-osseous lesions (fibrous dysplasia, cemento-osseous dysplasia)", "Fractured prosthesis (crown, bridge, denture)",
     "Denture stomatitis", "Poor denture fit", "Failed restoration", "Crowding/spacing", "Impacted teeth (e.g., third molars, canines)", "Ectopic eruption", 
-    "Ankylosis (tooth fusion)", "Halitosis (oral/systemic causes)", "Burning mouth syndrome", "Trigeminal neuralgia", "Sleep apnea (obstructive, related to oral anatomy)",
+     "Ankylosis (tooth fusion)", "Halitosis (oral/systemic causes)", "Burning mouth syndrome", "Trigeminal neuralgia", "Sleep apnea (obstructive, related to oral anatomy)",
   ];
 
   const treatmentPlanOptions = [
     "Registration & Consultation", "Registration & Consultation (family)", "Scaling and Polishing", "Scaling and Polishing with Gross Stain", "Simple Extraction Anterior", 
-    "Simple Extraction Posterior", "Extraction of Retained Root", "Surgical Extraction (Impacted 3rd Molar)", "Temporary Dressing", "Amalgam Filling", 
-    "Fuji 9 (Posterior GIC (per Filling)", "Tooth Whitening (3 Sessions)", "Curretage/Subgingival (per tooth)", "Composite Buildup", "Removable Denture (Additional Tooth)",
+     "Simple Extraction Posterior", "Extraction of Retained Root", "Surgical Extraction (Impacted 3rd Molar)", "Temporary Dressing", "Amalgam Filling", 
+     "Fuji 9 (Posterior GIC (per Filling)", "Tooth Whitening (3 Sessions)", "Curretage/Subgingival (per tooth)", "Composite Buildup", "Removable Denture (Additional Tooth)",
     "PFM Crown", "Topical Flouridation/Desensitization", "X-Ray", "Root Canal Treatment Anterior", "Root Canal Treatment Posterior", "Gingivectomy/Operculectomy",
     "Splinting with Wires", "Splinting with GIC Composite", "Incision & Drainage/Suturing with Debridement", "Fissure Sealant", "Pulpotomy/Pulpectomy", 
-    "Stainless Steel Crown", "Band & Loop Space Maintainers", "LLA & TPA Space Maintainers", "Essix Retainer", "Crown Cementation", "Esthetic Tooth Filling",
-    "Zirconium Crown", "Gold Crown", "Flexible Denture (per tooth)", "Flexible Denture (2nd tooth)", "Metallic Crown", "Dental Implant – One Tooth", 
-    "Dental Implant – Two Teeth", "Orthodontist Consult", "Partial Denture", "Denture Repair", "GIC Filling", "Braces Consultation", "Braces", "Fluoride Treatment",
+     "Stainless Steel Crown", "Band & Loop Space Maintainers", "LLA & TPA Space Maintainers", "Essix Retainer", "Crown Cementation", "Esthetic Tooth Filling",
+    "Zirconium Crown", "Gold Crown", "Flexible Denture (per tooth)", "Flexible Denture (2nd tooth)", "Metallic Crown", "Dental Implant   One Tooth", 
+     "Dental Implant   Two Teeth", "Orthodontist Consult", "Partial Denture", "Denture Repair", "GIC Filling", "Braces Consultation", "Braces", "Fluoride Treatment",
     "Intermaxillary Fixation", "Aligners", "E-Max Crown","Drug", "Mouthwash"
   ];
 
@@ -102,6 +101,7 @@ export default function EditDentalRecord() {
 
       const parsedPatientId = parseInt(patientId);
       const parsedRecordId = parseInt(recordId);
+
       if (isNaN(parsedPatientId) || isNaN(parsedRecordId)) {
         setError("Invalid Patient ID or Record ID provided in the URL.");
         setLoading(false);
@@ -111,8 +111,9 @@ export default function EditDentalRecord() {
       try {
         const patientResponse = await fetch(`${API_BASE_URL}/api/patients/${parsedPatientId}`, { headers: { 'Authorization': `Bearer ${token}` } });
         if (patientResponse.ok) { setPatientName((await patientResponse.json()).name); }
-        
+                 
         const recordResponse = await fetch(`${API_BASE_URL}/api/patients/${parsedPatientId}/dental-records/${parsedRecordId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        
         if (recordResponse.ok) {
           const recordData = await recordResponse.json();
           setFormData({
@@ -140,6 +141,7 @@ export default function EditDentalRecord() {
         setLoading(false);
       }
     };
+    
     fetchRecordAndPatientDetails();
   }, [patientId, recordId, navigate]);
 
@@ -167,7 +169,7 @@ export default function EditDentalRecord() {
       setSelectedProvisionalDiagnosisOption('');
     }
   };
-  
+
   const handleAddManualProvisionalDiagnosis = () => {
     const trimmedDiagnosis = manualProvisionalDiagnosis.trim();
     if (trimmedDiagnosis && !formData.provisionalDiagnosis.includes(trimmedDiagnosis)) {
@@ -244,6 +246,7 @@ export default function EditDentalRecord() {
 
     try {
       let finalImageUrl = formData.xrayUrl;
+
       if (newXrayImageFile) {
         toast.info("Uploading new X-ray image...");
         const newUrl = await handleImageUpload(newXrayImageFile);
@@ -256,12 +259,13 @@ export default function EditDentalRecord() {
       }
 
       const payload = { ...formData, xrayUrl: finalImageUrl, updatedAt: new Date() };
-      
+             
       const response = await fetch(`${API_BASE_URL}/api/patients/dental-records/${recordId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(payload),
       });
+
       if (!response.ok) { throw new Error((await response.json()).error || 'Failed to update record'); }
 
       const appointmentResponse = await fetch(`${API_BASE_URL}/api/patients/${patientId}/schedule-appointment`, {
@@ -275,8 +279,7 @@ export default function EditDentalRecord() {
       } else {
         toast.success('Record updated and appointment scheduled successfully!');
       }
-      setTimeout(() => navigate(`/patients/${patientId}/records/${recordId}`), 2000); // CORRECTED ROUTE
-
+      setTimeout(() => navigate(`/patients/${patientId}/records/${recordId}`), 2000); 
     } catch (err) {
       console.error('Submission error:', err);
       toast.error(err.message || 'An unexpected error occurred.');
@@ -301,7 +304,6 @@ export default function EditDentalRecord() {
             <div className="app-container">
                 <div className="edit-record-container">
                     <p className="info-message error">Error: {error}</p>
-                    {/* CORRECTED ROUTE */}
                     <button onClick={() => navigate(`/patients/${patientId}/records/${recordId}`)} className="back-button" style={{ margin: '20px auto', display: 'block', width: 'fit-content' }}>
                         <i className="fas fa-arrow-left"></i> Back to Record Details
                     </button>
@@ -315,13 +317,11 @@ export default function EditDentalRecord() {
       <header className="record-form-header">
         <h1>Edit Dental Record for {patientName}</h1>
         <div className="actions">
-          {/* CORRECTED ROUTE */}
           <button onClick={() => navigate(`/patients/${patientId}/records/${recordId}`)} className="back-button">
             <i className="fas fa-arrow-left"></i> Back to Record Details
           </button>
         </div>
       </header>
-
       <form onSubmit={handleSubmit}>
         <section className="form-section">
           <h2>Chief Complaint & History</h2>
@@ -344,7 +344,7 @@ export default function EditDentalRecord() {
             </div>
           </div>
         </section>
-
+        
         <section className="form-section">
           <h2>Medical History (Medications)</h2>
           <div className="checkbox-group">
@@ -366,11 +366,13 @@ export default function EditDentalRecord() {
           <div className="form-grid">
             <div className="form-group"><label htmlFor="extraOralExamination">Extra-Oral Examination</label><textarea id="extraOralExamination" name="extraOralExamination" value={formData.extraOralExamination} onChange={handleChange} placeholder="e.g., Mild facial swelling on right side, lymph nodes non-palpable"></textarea></div>
             <div className="form-group"><label htmlFor="intraOralExamination">Intra-Oral Examination</label><textarea id="intraOralExamination" name="intraOralExamination" value={formData.intraOralExamination} onChange={handleChange} placeholder="e.g., Tooth #16 fractured, deep caries exposed, gingiva inflamed"></textarea></div>
+            
             <div className="form-group"><label>Teeth Present</label><div className="quadrant-input-group"><div className="quadrant-input-item"><span className="quadrant-label">Q1</span><input type="text" name="teethPresent.q1" value={formData.teethPresent.q1} onChange={handleChange}/></div><div className="quadrant-input-item"><span className="quadrant-label">Q2</span><input type="text" name="teethPresent.q2" value={formData.teethPresent.q2} onChange={handleChange}/></div><div className="quadrant-input-item"><span className="quadrant-label">Q4</span><input type="text" name="teethPresent.q4" value={formData.teethPresent.q4} onChange={handleChange}/></div><div className="quadrant-input-item"><span className="quadrant-label">Q3</span><input type="text" name="teethPresent.q3" value={formData.teethPresent.q3} onChange={handleChange}/></div></div></div>
             <div className="form-group"><label>Carious Cavity</label><div className="quadrant-input-group"><div className="quadrant-input-item"><span className="quadrant-label">Q1</span><input type="text" name="cariousCavity.q1" value={formData.cariousCavity.q1} onChange={handleChange}/></div><div className="quadrant-input-item"><span className="quadrant-label">Q2</span><input type="text" name="cariousCavity.q2" value={formData.cariousCavity.q2} onChange={handleChange}/></div><div className="quadrant-input-item"><span className="quadrant-label">Q4</span><input type="text" name="cariousCavity.q4" value={formData.cariousCavity.q4} onChange={handleChange}/></div><div className="quadrant-input-item"><span className="quadrant-label">Q3</span><input type="text" name="cariousCavity.q3" value={formData.cariousCavity.q3} onChange={handleChange}/></div></div></div>
             <div className="form-group"><label>Filled Teeth</label><div className="quadrant-input-group"><div className="quadrant-input-item"><span className="quadrant-label">Q1</span><input type="text" name="filledTeeth.q1" value={formData.filledTeeth.q1} onChange={handleChange}/></div><div className="quadrant-input-item"><span className="quadrant-label">Q2</span><input type="text" name="filledTeeth.q2" value={formData.filledTeeth.q2} onChange={handleChange}/></div><div className="quadrant-input-item"><span className="quadrant-label">Q4</span><input type="text" name="filledTeeth.q4" value={formData.filledTeeth.q4} onChange={handleChange}/></div><div className="quadrant-input-item"><span className="quadrant-label">Q3</span><input type="text" name="filledTeeth.q3" value={formData.filledTeeth.q3} onChange={handleChange}/></div></div></div>
             <div className="form-group"><label>Missing Teeth</label><div className="quadrant-input-group"><div className="quadrant-input-item"><span className="quadrant-label">Q1</span><input type="text" name="missingTeeth.q1" value={formData.missingTeeth.q1} onChange={handleChange}/></div><div className="quadrant-input-item"><span className="quadrant-label">Q2</span><input type="text" name="missingTeeth.q2" value={formData.missingTeeth.q2} onChange={handleChange}/></div><div className="quadrant-input-item"><span className="quadrant-label">Q4</span><input type="text" name="missingTeeth.q4" value={formData.missingTeeth.q4} onChange={handleChange}/></div><div className="quadrant-input-item"><span className="quadrant-label">Q3</span><input type="text" name="missingTeeth.q3" value={formData.missingTeeth.q3} onChange={handleChange}/></div></div></div>
             <div className="form-group"><label>Fractured Teeth</label><div className="quadrant-input-group"><div className="quadrant-input-item"><span className="quadrant-label">Q1</span><input type="text" name="fracturedTeeth.q1" value={formData.fracturedTeeth.q1} onChange={handleChange}/></div><div className="quadrant-input-item"><span className="quadrant-label">Q2</span><input type="text" name="fracturedTeeth.q2" value={formData.fracturedTeeth.q2} onChange={handleChange}/></div><div className="quadrant-input-item"><span className="quadrant-label">Q4</span><input type="text" name="fracturedTeeth.q4" value={formData.fracturedTeeth.q4} onChange={handleChange}/></div><div className="quadrant-input-item"><span className="quadrant-label">Q3</span><input type="text" name="fracturedTeeth.q3" value={formData.fracturedTeeth.q3} onChange={handleChange}/></div></div></div>
+            
             <div className="form-group"><label htmlFor="periodontalCondition">Periodontal Condition</label><select id="periodontalCondition" name="periodontalCondition" value={formData.periodontalCondition} onChange={handleChange}><option value="">Select Condition</option><option value="Chronic periodontitis (localized/generalized)">Chronic periodontitis (localized/generalized)</option><option value="Aggressive periodontitis">Aggressive periodontitis</option><option value="Necrotizing periodontitis">Necrotizing periodontitis</option></select></div>
             <div className="form-group"><label htmlFor="oralHygiene">Oral Hygiene</label><select id="oralHygiene" name="oralHygiene" value={formData.oralHygiene} onChange={handleChange}><option value="">Select Hygiene Level</option><option value="Good">Good</option><option value="Fair">Fair</option><option value="Bad">Bad</option></select></div>
             <div className="form-group"><label htmlFor="calculus">Calculus</label><input type="text" id="calculus" name="calculus" value={formData.calculus} onChange={handleChange} placeholder="e.g., Absent, Mild, Moderate, Heavy"/></div>
@@ -410,7 +412,6 @@ export default function EditDentalRecord() {
         </section>
 
         {message && (<div className={`message ${isError ? 'error' : 'success'}`}>{message}</div>)}
-
         <div className="form-actions">
           <button type="submit" disabled={submitting}>
             {submitting ? 'Updating...' : 'Update Record & Set Appointment'}

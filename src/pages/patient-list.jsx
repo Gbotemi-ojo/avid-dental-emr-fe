@@ -1,5 +1,5 @@
 // src/pages/patient-list.jsx
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import './patient-list.css';
@@ -163,7 +163,6 @@ function PatientList() {
         if (!token) return;
 
         try {
-            // UPDATED: Include 'date' in query params
             const queryParams = new URLSearchParams({
                 page: pagination.page,
                 limit: pagination.limit,
@@ -197,7 +196,7 @@ function PatientList() {
       };
 
       fetchPatients();
-  }, [pagination.page, debouncedSearch, selectedDate, navigate]); // Added selectedDate dependency
+  }, [pagination.page, pagination.limit, debouncedSearch, selectedDate, navigate]); 
 
   const hasPermission = (permissionKey) => {
     if (!userRole || !settings || !settings.patientManagement) return false;
@@ -221,8 +220,6 @@ function PatientList() {
         return { ...p, allVisits, mostRecentVisit };
     });
 
-    // NOTE: Client-side date filter REMOVED because we now do it server-side.
-    
     const familyHeads = augmentedPatients.filter(p => p.isFamilyHead);
     const familyMap = new Map(familyHeads.map(p => [p.id, { ...p, familyMembers: [] }]));
     
@@ -236,7 +233,7 @@ function PatientList() {
     });
 
     return Array.from(familyMap.values());
-  }, [patients]); // Removed selectedDate dependency (filtering happens at API level now)
+  }, [patients]); 
 
   const showNextAppointmentColumn = hasPermission('canSeeNextAppointment');
 
@@ -281,7 +278,7 @@ function PatientList() {
               value={selectedDate ? formatDateForInput(selectedDate) : ''} 
               onChange={(e) => {
                   setSelectedDate(e.target.value ? new Date(e.target.value) : null);
-                  setPagination(prev => ({ ...prev, page: 1 })); // Reset to page 1 on date filter
+                  setPagination(prev => ({ ...prev, page: 1 })); 
               }} 
           />
           {selectedDate && <button onClick={() => { setSelectedDate(null); setPagination(prev => ({ ...prev, page: 1 })); }} className="clear-date-button"><i className="fas fa-times"></i> Clear</button>}
@@ -374,7 +371,6 @@ function PatientList() {
           </div>
       )}
 
-      {/* Pagination Controls */}
       <div className="pagination-controls">
           <button 
             onClick={handlePrevPage} 
@@ -462,10 +458,15 @@ function PatientActions({ patient, userRole, navigate, hasPermission }) {
             {isOpen && createPortal(
                 <div ref={menuRef} style={style} className="actions-dropdown-menu">
                     {availableActions.map(action => (
-                         <a key={action.label} onClick={() => handleActionClick(action.path)} className="actions-dropdown-item">
+                         <button 
+                             key={action.label} 
+                             onClick={() => handleActionClick(action.path)} 
+                             className="actions-dropdown-item"
+                             style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit' }}
+                         >
                             <i className={`fas ${action.icon}`}></i>
                             <span>{action.label}</span>
-                        </a>
+                        </button>
                     ))}
                     {availableActions.length === 0 && (
                         <span className="actions-dropdown-item-none">No actions available</span>

@@ -1,3 +1,4 @@
+// src/pages/analytics-page.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
@@ -5,10 +6,8 @@ import API_BASE_URL from '../config/api';
 
 const PIE_COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#a4de6c', '#d0ed57', '#8dd1e1'];
 
-// --- Styling Component (with new styles for tabs) ---
 const AnalyticsStyles = () => (
     <style>{`
-        /* [Previous styles remain the same] */
         .analytics-container { padding: 2rem; background-color: #f0f2f5; min-height: 100vh; font-family: 'Inter', sans-serif; }
         .analytics-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
         .analytics-header h1 { font-size: 2rem; font-weight: 700; color: #1e293b; }
@@ -33,8 +32,7 @@ const AnalyticsStyles = () => (
         .error-page, .tab-error { text-align: center; padding-top: 5rem; }
         .error-page h2, .tab-error h2 { color: #ef4444; font-size: 2rem; margin-bottom: 1rem; }
         .error-page p, .tab-error p { font-size: 1.1rem; color: #475569; margin-bottom: 2rem; }
-        
-        /* --- NEW TAB STYLES --- */
+                 
         .analytics-tabs {
             display: flex;
             gap: 0.5rem;
@@ -53,27 +51,12 @@ const AnalyticsStyles = () => (
             transform: translateY(2px);
             transition: color 0.2s, border-color 0.2s;
         }
-        .tab-button:hover {
-            color: #334155;
-        }
-        .tab-button.active {
-            color: #8b5cf6;
-            border-bottom-color: #8b5cf6;
-        }
-        .tab-content {
-            min-height: 400px; /* Prevents layout shift during loading */
-        }
-        .tab-loader {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 400px;
-            flex-direction: column;
-            gap: 1rem;
-        }
+        .tab-button:hover { color: #334155; }
+        .tab-button.active { color: #8b5cf6; border-bottom-color: #8b5cf6; }
+        .tab-content { min-height: 400px; }
+        .tab-loader { display: flex; justify-content: center; align-items: center; height: 400px; flex-direction: column; gap: 1rem; }
         .tab-loader div { width: 40px; height: 40px; }
-
-        /* [Other previous styles remain the same] */
+        
         .date-filter-card { background-color: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.07); margin-bottom: 1.5rem; grid-column: 1 / -1; }
         .date-filter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
         .date-filter-header h3 { font-size: 1.25rem; font-weight: 600; color: #334155; margin: 0; }
@@ -96,17 +79,31 @@ const AnalyticsStyles = () => (
     `}</style>
 );
 
-// --- Reusable Components (no changes needed) ---
-const KpiCard = ({ title, value, icon, color }) => ( <div className="kpi-card"><div className="kpi-icon" style={{ backgroundColor: color + '22', color }}><i className={`fas ${icon}`}></i></div><div className="kpi-content"><div className="kpi-title">{title}</div><div className="kpi-value">{value}</div></div></div>);
-const ChartCard = ({ title, children }) => ( <div className="chart-card"><div className="chart-title">{title}</div><div className="chart-container">{children}</div></div>);
-const CustomTooltip = ({ active, payload, label }) => { if (active && payload && payload.length) { return ( <div className="custom-tooltip"><div className="label">{label}</div>{payload.map((entry, idx) => ( <div key={idx}><span style={{ color: entry.color, fontWeight: 600 }}>{entry.name}:</span> {entry.value}</div>))}</div>); } return null; };
-const TabLoader = ({ text }) => ( <div className="tab-loader"><div></div><p>{text || "Loading..."}</p></div>);
-const TabError = ({ message }) => ( <div className="tab-error"><h2><i className="fas fa-exclamation-triangle"></i> Error</h2><p>{message}</p></div>);
+const KpiCard = ({ title, value, icon, color }) => (
+    <div className="kpi-card"><div className="kpi-icon" style={{ backgroundColor: color + '22', color }}><i className={`fas ${icon}`}></i></div><div className="kpi-content"><div className="kpi-title">{title}</div><div className="kpi-value">{value}</div></div></div>
+);
 
-// --- Component for Treatment Revenue (no logic changes) ---
-const TreatmentRevenueAnalytics = ({ token, navigate }) => { /* ... existing code for this component ... */ return (<div></div>); };
+const ChartCard = ({ title, children }) => (
+    <div className="chart-card"><div className="chart-title">{title}</div><div className="chart-container">{children}</div></div>
+);
 
-// --- Tab Content Components ---
+const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="custom-tooltip"><div className="label">{label}</div>{payload.map((entry, idx) => (
+            <div key={idx}><span style={{ color: entry.color, fontWeight: 600 }}>{entry.name}:</span> {entry.value}</div>))}</div>
+        );
+    }
+    return null;
+};
+
+const TabLoader = ({ text }) => (
+    <div className="tab-loader"><div></div><p>{text || "Loading..."}</p></div>
+);
+
+const TabError = ({ message }) => (
+    <div className="tab-error"><h2><i className="fas fa-exclamation-triangle"></i> Error</h2><p>{message}</p></div>
+);
 
 const OperationalTab = ({ data }) => (
     <div className="charts-grid">
@@ -182,8 +179,6 @@ const FinancialTab = ({ data }) => (
                 </PieChart>
             </ResponsiveContainer>
         </ChartCard>
-         {/* The TreatmentRevenueAnalytics component can be integrated here */}
-         {/* <TreatmentRevenueAnalytics token={localStorage.getItem('jwtToken')} navigate={useNavigate()} /> */}
     </div>
 );
 
@@ -203,7 +198,6 @@ const InventoryTab = ({ data }) => (
         </ChartCard>
     </div>
 );
-
 
 // --- Main Analytics Page Component ---
 export default function AnalyticsPage() {
@@ -231,28 +225,27 @@ export default function AnalyticsPage() {
                     throw new Error(`Failed to fetch data. Status: ${res.status}`);
                 }
             }
-            
+                         
             const jsonData = await Promise.all(responses.map(res => res.json()));
-            
+                         
             return endpoints.reduce((acc, endpoint, index) => {
                 acc[endpoint.replace(/-/g, '_')] = jsonData[index];
                 return acc;
             }, {});
-
         } catch (err) {
             console.error(err);
              if (err.message?.includes('401') || err.message?.includes('403')) {
                 localStorage.clear();
                 navigate('/login');
             }
-            throw err; // Re-throw to be caught by the calling function
+            throw err; 
         }
     }, [navigate]);
 
     // Initial load for Key Metrics
     useEffect(() => {
         const fetchKeyMetrics = async () => {
-            if (data.key_metrics) return; // Don't re-fetch
+            if (data.key_metrics) return; 
             setLoading(prev => ({ ...prev, key_metrics: true }));
             try {
                 const fetchedData = await fetcher(['key-metrics']);
@@ -265,23 +258,21 @@ export default function AnalyticsPage() {
         };
         fetchKeyMetrics();
     }, [fetcher, data.key_metrics]);
-    
+         
     // Fetch data based on active tab
     useEffect(() => {
         const tabEndpoints = {
             operational: ['patient-demographics', 'patient-flow'],
             clinical: ['diagnoses-common', 'doctor-performance'],
-            financial: ['hmo-distribution'/*, 'treatment-revenue'*/],
+            financial: ['hmo-distribution'],
             inventory: ['inventory-usage-top'],
         };
-        
+                 
         const fetchTabData = async () => {
             const endpoints = tabEndpoints[activeTab];
-            if (!endpoints || data[endpoints[0].replace(/-/g, '_')]) return; // Already fetched
-
+            if (!endpoints || data[endpoints[0].replace(/-/g, '_')]) return; 
             setLoading(prev => ({ ...prev, [activeTab]: true }));
             setError(prev => ({ ...prev, [activeTab]: null }));
-
             try {
                 const fetchedData = await fetcher(endpoints);
                 setData(prev => ({ ...prev, ...fetchedData }));
@@ -291,11 +282,9 @@ export default function AnalyticsPage() {
                 setLoading(prev => ({ ...prev, [activeTab]: false }));
             }
         };
-
         fetchTabData();
     }, [activeTab, fetcher, data]);
-    
-
+         
     const renderTabContent = () => {
         if (loading[activeTab]) return <TabLoader text={`Loading ${activeTab} analytics...`} />;
         if (error[activeTab]) return <TabError message={`Could not load ${activeTab} data.`} />;
@@ -307,8 +296,8 @@ export default function AnalyticsPage() {
                 return data.diagnoses_common && data.doctor_performance ? <ClinicalTab data={data} /> : null;
             case 'financial':
                 return data.hmo_distribution ? <FinancialTab data={data} /> : null;
-            case 'inventory':
-                 return data.inventory_usage_top ? <InventoryTab data={data} /> : null;
+            case 'inventory': 
+                return data.inventory_usage_top ? <InventoryTab data={data} /> : null;
             default:
                 return null;
         }
@@ -338,7 +327,7 @@ export default function AnalyticsPage() {
                     <i className="fas fa-arrow-left"></i> Back to Dashboard
                 </button>
             </header>
-            
+                         
             {data.key_metrics && (
                 <section className="kpi-grid">
                     <KpiCard title="Today's Visits" value={data.key_metrics.todaysVisits} icon="fa-user-clock" color="#3b82f6" />
@@ -355,7 +344,7 @@ export default function AnalyticsPage() {
                 <button onClick={() => setActiveTab('financial')} className={`tab-button ${activeTab === 'financial' ? 'active' : ''}`}>Financial</button>
                 <button onClick={() => setActiveTab('inventory')} className={`tab-button ${activeTab === 'inventory' ? 'active' : ''}`}>Inventory</button>
             </nav>
-            
+                         
             <main className="tab-content">
                 {renderTabContent()}
             </main>

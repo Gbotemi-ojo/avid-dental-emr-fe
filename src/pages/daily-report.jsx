@@ -1,18 +1,18 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom'; // Added useNavigate
+// src/pages/daily-report.jsx
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom'; 
 import { toast } from 'react-toastify';
 import './daily-report.css';
 import API_BASE_URL from '../config/api';
 
 export default function DailyReport() {
-    const navigate = useNavigate(); // Initialize navigation
-    const [userRole, setUserRole] = useState(localStorage.getItem('role'));
+    const navigate = useNavigate(); 
+    const [userRole] = useState(localStorage.getItem('role'));
     const [viewMode, setViewMode] = useState('submit'); 
     const [pastReports, setPastReports] = useState([]);
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [submitting, setSubmitting] = useState(false);
 
-    // Initial state with empty strings for numbers to allow placeholders to show
     const [formData, setFormData] = useState({
         date: new Date().toISOString().split('T')[0],
         receptionistName: '',
@@ -30,13 +30,7 @@ export default function DailyReport() {
         closingNotes: ''
     });
 
-    useEffect(() => {
-        if (userRole === 'owner' && viewMode === 'view') {
-            fetchReports();
-        }
-    }, [userRole, viewMode, selectedDate]);
-
-    const fetchReports = async () => {
+    const fetchReports = useCallback(async () => {
         const token = localStorage.getItem('jwtToken');
         try {
             const res = await fetch(`${API_BASE_URL}/api/reports?date=${selectedDate}`, {
@@ -51,7 +45,13 @@ export default function DailyReport() {
             console.error("Error fetching reports", err);
             toast.error("Network error while loading history.");
         }
-    };
+    }, [selectedDate]);
+
+    useEffect(() => {
+        if (userRole === 'owner' && viewMode === 'view') {
+            fetchReports();
+        }
+    }, [userRole, viewMode, fetchReports]);
 
     const financials = useMemo(() => {
         let cash = 0, pos = 0, transfer = 0;
@@ -127,7 +127,7 @@ export default function DailyReport() {
             });
 
             if (res.ok) {
-                toast.success('Daily Report Submitted Successfully! 🚀');
+                toast.success('Daily Report Submitted Successfully!');
                 window.scrollTo(0,0);
                 setFormData(prev => ({ 
                     ...prev, 
@@ -355,7 +355,6 @@ export default function DailyReport() {
                                 {submitting ? <span className="spinner-mini"></span> : 'SUBMIT DAILY REPORT'}
                             </button>
                         </div>
-
                     </form>
                 ) : (
                     // VIEW MODE

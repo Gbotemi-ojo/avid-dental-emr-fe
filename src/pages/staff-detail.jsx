@@ -1,25 +1,23 @@
 // src/pages/staff-detail.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify'; // For sleek notifications
-import './staff-detail.css'; // Import the dedicated CSS file
+import { toast } from 'react-toastify'; 
+import './staff-detail.css'; 
 import API_BASE_URL from '../config/api'
 
-// This component displays the details of a specific staff member.
 export default function StaffDetail() {
-  const { userId } = useParams(); // Get userId from the URL
+  const { userId } = useParams(); 
   const navigate = useNavigate();
 
   const [staffMember, setStaffMember] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [userRole, setUserRole] = useState(null); // Current logged-in user's role
-  const [currentLoggedInUserId, setCurrentLoggedInUserId] = useState(null); // ID of the currently logged-in user
+  const [userRole, setUserRole] = useState(null); 
+  const [currentLoggedInUserId, setCurrentLoggedInUserId] = useState(null); 
 
-  // State for confirmation modals
   const [showDeactivateModal, setShowDeactivateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isActionSubmitting, setIsActionSubmitting] = useState(false); // To disable buttons during action
+  const [isActionSubmitting, setIsActionSubmitting] = useState(false); 
 
   useEffect(() => {
     const token = localStorage.getItem('jwtToken');
@@ -34,11 +32,9 @@ export default function StaffDetail() {
       return;
     }
 
-    // Only 'owner' role can view staff details, or a staff member can view their own details.
-    // Adjust this logic if you want staff to view other staff.
     if (role !== 'owner' && String(loggedInId) !== String(userId)) {
       toast.error("You don't have permission to view this staff member's details.");
-      navigate('/admin/staff-management'); // Redirect if not authorized
+      navigate('/admin/staff-management'); 
       return;
     }
 
@@ -51,8 +47,6 @@ export default function StaffDetail() {
 
     const fetchStaffDetails = async () => {
       try {
-        // Backend API endpoint to fetch a single user by ID
-        // You'll need to create this route on your backend: GET /api/admin/users/:id
         const response = await fetch(`${API_BASE_URL}/api/admin/users/${parsedUserId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -81,12 +75,11 @@ export default function StaffDetail() {
     };
 
     fetchStaffDetails();
-  }, [userId, navigate, currentLoggedInUserId]); // Add currentLoggedInUserId to dependencies
+  }, [userId, navigate, currentLoggedInUserId]); 
 
-  // Handle Activate/Deactivate Status
   const handleToggleStatus = async () => {
     setIsActionSubmitting(true);
-    toast.dismiss(); // Clear existing toasts
+    toast.dismiss(); 
 
     const token = localStorage.getItem('jwtToken');
     if (!token) {
@@ -97,7 +90,7 @@ export default function StaffDetail() {
     }
 
     try {
-      const newStatus = !staffMember.isActive; // Toggle current status
+      const newStatus = !staffMember.isActive; 
       const response = await fetch(`${API_BASE_URL}/api/admin/users/${staffMember.id}/status`, {
         method: 'PUT',
         headers: {
@@ -111,7 +104,6 @@ export default function StaffDetail() {
 
       if (response.ok) {
         toast.success(data.message || `Staff account ${newStatus ? 'activated' : 'deactivated'} successfully!`);
-        // Update local state to reflect the change immediately
         setStaffMember((prev) => ({ ...prev, isActive: newStatus, updatedAt: new Date().toISOString() }));
       } else if (response.status === 401 || response.status === 403) {
         toast.error(data.error || "Authorization failed. You don't have permission to change status.");
@@ -127,14 +119,13 @@ export default function StaffDetail() {
       setError('Network error. Could not update staff status.');
     } finally {
       setIsActionSubmitting(false);
-      setShowDeactivateModal(false); // Close modal
+      setShowDeactivateModal(false); 
     }
   };
 
-  // Handle Delete Staff Member
   const handleDeleteStaff = async () => {
     setIsActionSubmitting(true);
-    toast.dismiss(); // Clear existing toasts
+    toast.dismiss(); 
 
     const token = localStorage.getItem('jwtToken');
     if (!token) {
@@ -156,7 +147,7 @@ export default function StaffDetail() {
 
       if (response.ok) {
         toast.success(data.message || 'Staff account deleted successfully!', {
-          onClose: () => navigate('/admin/staff-management'), // Redirect to staff list after deletion
+          onClose: () => navigate('/admin/staff-management'), 
           autoClose: 2000,
         });
       } else if (response.status === 401 || response.status === 403) {
@@ -173,10 +164,9 @@ export default function StaffDetail() {
       setError('Network error. Could not delete staff account.');
     } finally {
       setIsActionSubmitting(false);
-      setShowDeleteModal(false); // Close modal
+      setShowDeleteModal(false); 
     }
   };
-
 
   if (loading) {
     return (
@@ -215,10 +205,7 @@ export default function StaffDetail() {
     );
   }
 
-  // Determine if the logged-in user can perform actions on this profile
   const canEditOrDelete = userRole === 'owner';
-  // A user cannot deactivate/delete themselves if they are the owner role
-  const isSelfOwner = (userRole === 'owner' && String(staffMember.id) === String(currentLoggedInUserId));
 
   return (
     <div className="staff-detail-container">
@@ -230,13 +217,10 @@ export default function StaffDetail() {
           </a>
           {canEditOrDelete && (
             <>
-              {/* Edit button */}
               <a href={`/admin/staff-management/${staffMember.id}/edit`} className="edit-button">
                 <i className="fas fa-edit"></i> Edit Profile
               </a>
-
-              {/* Deactivate/Activate button */}
-              {staffMember.role !== 'owner' && ( // Cannot deactivate/activate an 'owner' role
+              {staffMember.role !== 'owner' && ( 
                 <button
                   onClick={() => setShowDeactivateModal(true)}
                   className={`toggle-status-button ${staffMember.isActive ? 'deactivate' : 'activate'}`}
@@ -246,9 +230,7 @@ export default function StaffDetail() {
                   {staffMember.isActive ? 'Deactivate Account' : 'Activate Account'}
                 </button>
               )}
-
-              {/* Delete button */}
-              {staffMember.role !== 'owner' && ( // Cannot delete an 'owner' role
+              {staffMember.role !== 'owner' && ( 
                 <button
                   onClick={() => setShowDeleteModal(true)}
                   className="delete-button"
@@ -288,7 +270,6 @@ export default function StaffDetail() {
         </div>
       </section>
 
-      {/* Deactivate/Activate Confirmation Modal */}
       {showDeactivateModal && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -312,7 +293,6 @@ export default function StaffDetail() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="modal-overlay">
           <div className="modal-content">

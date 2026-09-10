@@ -1,15 +1,13 @@
 // src/pages/profile-page.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify'; // For sleek notifications
-import './profile-page.css'; // Import the dedicated CSS file
+import { toast } from 'react-toastify'; 
+import './profile-page.css'; 
 import API_BASE_URL from '../config/api'
 
-// This component allows a logged-in user to view and update their personal profile details.
 export default function ProfilePage() {
   const navigate = useNavigate();
 
-  // State for general profile data (username, email)
   const [profileData, setProfileData] = useState({
     username: '',
     email: '',
@@ -20,16 +18,16 @@ export default function ProfilePage() {
   });
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [submittingProfile, setSubmittingProfile] = useState(false);
-  const [profileError, setProfileError] = useState(null); // For errors related to fetching/updating profile
+  const [profileError, setProfileError] = useState(null); 
 
-  // State for password change form
   const [passwordFormData, setPasswordFormData] = useState({
     currentPassword: '',
     newPassword: '',
     confirmNewPassword: '',
   });
   const [submittingPassword, setSubmittingPassword] = useState(false);
-  const [passwordError, setPasswordError] = useState(null); // For errors related to password change
+  // Removed unused passwordError state
+  const [, setPasswordError] = useState(null); 
 
   useEffect(() => {
     const token = localStorage.getItem('jwtToken');
@@ -41,7 +39,6 @@ export default function ProfilePage() {
 
     const fetchProfile = async () => {
       try {
-        // This endpoint remains correct for fetching the current user's profile data
         const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -77,7 +74,6 @@ export default function ProfilePage() {
     fetchProfile();
   }, [navigate]);
 
-  // Handle changes for general profile form
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
     setProfileData((prevData) => ({
@@ -86,7 +82,6 @@ export default function ProfilePage() {
     }));
   };
 
-  // Handle changes for password change form
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPasswordFormData((prevData) => ({
@@ -95,7 +90,6 @@ export default function ProfilePage() {
     }));
   };
 
-  // Handle profile update submission
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     setSubmittingProfile(true);
@@ -110,7 +104,6 @@ export default function ProfilePage() {
       return;
     }
 
-    // Client-side validation
     if (!profileData.username) {
       setProfileError('Username is required.');
       toast.error('Username is required.');
@@ -127,10 +120,9 @@ export default function ProfilePage() {
     try {
       const payload = {
         username: profileData.username,
-        email: profileData.email || null, // Send null if empty string
+        email: profileData.email || null, 
       };
 
-      // CORRECTED ENDPOINT for general profile update: /api/admin/users/profile
       const response = await fetch(`${API_BASE_URL}/api/admin/users/profile`, {
         method: 'PUT',
         headers: {
@@ -144,8 +136,6 @@ export default function ProfilePage() {
 
       if (response.ok) {
         toast.success(data.message || 'Profile updated successfully!');
-        // Optionally update local storage if username changes and it's used elsewhere
-        // localStorage.setItem('username', profileData.username);
       } else if (response.status === 401 || response.status === 403) {
         toast.error(data.error || "Authorization failed. Please log in again.");
         localStorage.clear();
@@ -166,7 +156,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Handle password change submission
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     setSubmittingPassword(true);
@@ -181,7 +170,6 @@ export default function ProfilePage() {
       return;
     }
 
-    // Client-side validation
     if (!passwordFormData.currentPassword || !passwordFormData.newPassword || !passwordFormData.confirmNewPassword) {
       setPasswordError('All password fields are required.');
       toast.error('All password fields are required.');
@@ -194,7 +182,7 @@ export default function ProfilePage() {
       setSubmittingPassword(false);
       return;
     }
-    if (passwordFormData.newPassword.length < 8) { // Example: minimum password length
+    if (passwordFormData.newPassword.length < 8) { 
       setPasswordError('New password must be at least 8 characters long.');
       toast.error('New password must be at least 8 characters long.');
       setSubmittingPassword(false);
@@ -202,7 +190,6 @@ export default function ProfilePage() {
     }
 
     try {
-      // CORRECTED ENDPOINT for password change: /api/admin/users/profile/password
       const response = await fetch(`${API_BASE_URL}/api/admin/users/profile/password`, {
         method: 'PUT',
         headers: {
@@ -216,7 +203,6 @@ export default function ProfilePage() {
 
       if (response.ok) {
         toast.success(data.message || 'Password updated successfully!');
-        // Clear password fields after success
         setPasswordFormData({
           currentPassword: '',
           newPassword: '',
@@ -238,7 +224,6 @@ export default function ProfilePage() {
       setSubmittingPassword(false);
     }
   };
-
 
   if (loadingProfile) {
     return (
@@ -286,7 +271,6 @@ export default function ProfilePage() {
         </a>
       </header>
 
-      {/* General Profile Information Section */}
       <section className="profile-section">
         <h2>Personal Information</h2>
         <form onSubmit={handleProfileSubmit} className="profile-form">
@@ -338,7 +322,6 @@ export default function ProfilePage() {
         </form>
       </section>
 
-      {/* Password Change Section */}
       <section className="profile-section">
         <h2>Change Password</h2>
         <form onSubmit={handlePasswordSubmit} className="password-form">
