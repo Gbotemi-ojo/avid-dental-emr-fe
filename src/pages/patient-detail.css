@@ -1,0 +1,386 @@
+/* patient-detail.css */
+
+/* Import Google Font - Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* Modernized Color Palette (consistent with Dashboard) */
+  --primary-color: #3F51B5; /* Indigo - Professional and calming */
+  --secondary-color: #5C6BC0; /* Lighter Indigo */
+  --accent-color: #4CAF50; /* Green for success/positive actions */
+  --danger-color: #F44336; /* Red for destructive actions */
+  --warning-color: #FFC107; /* Yellow for edit/warning */
+  --invoice-color: #FF9800; /* Updated: Orange for Invoice for better distinction */
+  --receipt-color: #00BCD4; /* Cyan for Receipt */
+  --text-dark: #263238; /* Dark Blue Grey for main text */
+  --text-medium: #455A64; /* Lighter Blue Grey for secondary text */
+  --text-light: #ffffff; /* White for light backgrounds */
+  --bg-light: #ECEFF1; /* Light Blue Grey for subtle backgrounds */
+  --bg-medium: #CFD8DC; /* Medium Blue Grey for deeper backgrounds */
+  --card-bg: #ffffff; /* Pure white for cards */
+  --border-color: #E0E0E0; /* Light grey border */
+  --table-header-bg: #E8EAF6; /* Very light indigo for table headers */
+  --table-row-even: #F5F5F5; /* Light grey for even rows */
+  --table-row-hover: #E3F2FD; /* Very light blue on hover */
+
+  /* Enhanced Shadows */
+  --shadow-sm: rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+  --shadow-md: rgba(0, 0, 0, 0.08) 0px 4px 12px;
+  --shadow-lg: rgba(0, 0, 0, 0.15) 0px 8px 24px;
+  --shadow-xl: rgba(0, 0, 0, 0.25) 0px 16px 48px;
+
+  /* Spacing */
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 20px;
+  --spacing-lg: 30px;
+  --spacing-xl: 40px;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-medium) 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+.app-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: var(--spacing-xl);
+  box-sizing: border-box;
+}
+
+.patient-detail-container {
+  background-color: var(--card-bg);
+  padding: var(--spacing-xl);
+  border-radius: 15px;
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 1000px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header Section */
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 2px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.detail-header h1 {
+  color: var(--primary-color);
+  font-weight: 800;
+  font-size: 2.5em;
+  margin: 0;
+  letter-spacing: -0.02em;
+  word-break: break-word; /* Ensure long names wrap */
+}
+
+.detail-header .actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Base styles for all header buttons */
+.back-button,
+.edit-button,
+.add-record-button,
+.send-invoice-button,
+.send-receipt-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center; /* Center content inside button */
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  white-space: nowrap; /* Prevent text from wrapping inside button */
+}
+
+.back-button { background-color: var(--secondary-color); color: var(--text-light); }
+.back-button:hover { background-color: var(--primary-color); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+.edit-button { background-color: var(--warning-color); color: var(--text-dark); }
+.edit-button:hover { background-color: #E6B300; transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+.add-record-button { background-color: var(--accent-color); color: var(--text-light); }
+.add-record-button:hover { background-color: #388E3C; transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+.send-invoice-button { background-color: var(--invoice-color); color: var(--text-dark); }
+.send-invoice-button:hover { background-color: #F57C00; transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+.send-receipt-button { background-color: var(--receipt-color); color: var(--text-light); }
+.send-receipt-button:hover { background-color: #00838F; transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+.back-button i,
+.edit-button i,
+.add-record-button i,
+.send-invoice-button i,
+.send-receipt-button i {
+  margin-right: 8px;
+  font-size: 1.1rem;
+}
+
+/* Sections */
+.detail-section {
+  background-color: var(--bg-light);
+  border-radius: 10px;
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  border-left: 5px solid var(--primary-color);
+}
+
+.detail-section h2 {
+  color: var(--primary-color);
+  font-size: 1.8em;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Demographic Information Grid */
+.detail-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.detail-item {
+  flex: 1 1 calc(50% - var(--spacing-md)); /* Two columns, adjusted for gap */
+  display: flex;
+  flex-direction: column; /* Stack label and value by default */
+  font-size: 1.05em; /* Slightly larger for readability */
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.detail-item:last-child, .detail-item:nth-last-child(2):nth-child(odd) {
+    border-bottom: none; /* No border on last item(s) */
+}
+
+.detail-item strong {
+  color: var(--text-dark);
+  font-weight: 600;
+  margin-bottom: 4px; /* Space between label and value */
+  font-size: 0.9em;
+  text-transform: uppercase;
+  color: var(--text-medium);
+}
+
+.detail-item span {
+  color: var(--text-dark);
+  word-break: break-word;
+}
+
+.hmo-covered-yes { color: var(--accent-color); font-weight: 700; }
+.hmo-covered-no { color: var(--danger-color); font-weight: 700; }
+.restricted-info { color: var(--danger-color); font-style: italic; font-weight: 500; }
+
+/* Medical Records Table */
+.records-table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    box-shadow: var(--shadow-md);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.medical-records-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  min-width: 700px;
+}
+
+.medical-records-table thead { background-color: var(--table-header-bg); color: var(--primary-color); }
+.medical-records-table th { padding: 15px 20px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border-color); white-space: nowrap; }
+.medical-records-table tbody tr { border-bottom: 1px solid var(--border-color); transition: background-color 0.2s ease; }
+.medical-records-table tbody tr:nth-child(even) { background-color: var(--table-row-even); }
+.medical-records-table tbody tr:hover { background-color: var(--table-row-hover); }
+.medical-records-table td { padding: 12px 20px; text-align: left; vertical-align: middle; color: var(--text-medium); white-space: nowrap; max-width: 250px; overflow: hidden; text-overflow: ellipsis; }
+
+.view-record-button {
+  display: inline-block;
+  padding: 6px 12px;
+  background-color: var(--primary-color);
+  color: var(--text-light);
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.8rem;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+.view-record-button:hover { background-color: var(--secondary-color); }
+
+/* Loading/Error States */
+.spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.info-message { text-align: center; padding: 20px; background-color: var(--bg-light); border-radius: 8px; color: var(--text-medium); margin-top: 20px; font-size: 1.1rem; }
+.info-message.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+/* ====== Responsive Adjustments ====== */
+
+@media (max-width: 1024px) {
+  .app-container { padding: var(--spacing-md); }
+  .patient-detail-container { padding: var(--spacing-lg); }
+  .detail-header h1 { font-size: 2.2em; }
+}
+
+/* * CRITICAL FIX: I've reordered the media queries and made the mobile-specific 
+ * rules more explicit and high-priority to prevent them from being overridden.
+ */
+@media screen and (max-width: 768px) {
+  .patient-detail-container { padding: var(--spacing-md); }
+  
+  /* Buttons */
+  .detail-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+  .detail-header h1 { 
+    font-size: 2em; 
+    text-align: center; 
+    margin-bottom: var(--spacing-md);
+  }
+  .detail-header .actions {
+    flex-direction: column;
+    align-items: center; /* Center the buttons within the container */
+    width: 100%;
+    gap: var(--spacing-sm);
+  }
+  .back-button, .edit-button, .add-record-button, .send-invoice-button, .send-receipt-button {
+    width: 90%; /* Buttons are now a reasonable width, centered, and not full-width */
+    max-width: 300px;
+    justify-content: center;
+  }
+  .back-button, .edit-button, .add-record-button, .send-invoice-button, .send-receipt-button {
+    padding: 12px 15px;
+  }
+
+  /* Demographic Info */
+  .detail-section { padding: var(--spacing-md); }
+  .detail-section h2 { font-size: 1.6em; }
+  .detail-grid {
+    flex-direction: column;
+    gap: 0;
+  }
+  .detail-item {
+    flex-basis: 100%;
+    font-size: 1em;
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+  }
+  .detail-item:last-child {
+    border-bottom: none;
+  }
+
+  /* Table */
+  .records-table-responsive {
+    overflow-x: hidden;
+    border: none;
+    box-shadow: none;
+  }
+  .medical-records-table {
+    min-width: unset;
+  }
+  .medical-records-table thead {
+    display: none;
+  }
+  .medical-records-table,
+  .medical-records-table tbody,
+  .medical-records-table tr {
+    display: block;
+    width: 100%;
+  }
+  .medical-records-table tr {
+    margin-bottom: var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: var(--spacing-sm);
+    box-shadow: var(--shadow-sm);
+    background-color: var(--card-bg);
+  }
+  .medical-records-table tbody tr:nth-child(even) {
+    background-color: var(--card-bg);
+  }
+  .medical-records-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: right;
+    padding: 10px 5px;
+    border-bottom: 1px dashed var(--border-color);
+    white-space: normal;
+    max-width: 100%;
+    overflow: visible;
+    text-overflow: clip;
+  }
+  .medical-records-table td:last-child {
+    border-bottom: none;
+  }
+  .medical-records-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--primary-color);
+    text-align: left;
+    margin-right: var(--spacing-md);
+  }
+  .medical-records-table td[data-label="Actions"] {
+    justify-content: center;
+    padding-top: var(--spacing-sm);
+  }
+  .medical-records-table td[data-label="Actions"]::before {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-container { padding: var(--spacing-sm); }
+  .patient-detail-container { padding: var(--spacing-sm); }
+  .detail-header h1 { font-size: 1.8em; }
+  .detail-section h2 { font-size: 1.4em; }
+
+  .back-button, .edit-button, .add-record-button, .send-invoice-button, .send-receipt-button {
+    padding: 12px 15px;
+    font-size: 0.9em;
+  }
+}
